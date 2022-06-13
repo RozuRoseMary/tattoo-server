@@ -59,7 +59,7 @@ module.exports = (Sequelize, DataTypes) => {
 
   // * ASSOCIATE
   ServicePrice.associate = (models) => {
-    ServicePrice.belongsTo(models.ServicePrice, {
+    ServicePrice.belongsTo(models.Product, {
       foreignKey: {
         name: "productId",
         allowNull: false,

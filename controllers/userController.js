@@ -59,6 +59,7 @@ exports.updateProfilePicture = async (req, res, next) => {
     }
   }
 };
+
 exports.updateProfile = async (req, res, next) => {
   try {
     const {
@@ -111,6 +112,20 @@ exports.updateProfile = async (req, res, next) => {
     await user.save();
     // user
     res.json({ message: "update success", user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updatePaymentPic = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updatePayment = async (req, res, next) => {
+  try {
   } catch (err) {
     next(err);
   }

@@ -1,6 +1,8 @@
 const express = require("express");
 const productController = require("../controllers/productController");
 const serviceController = require("../controllers/servicePriceController");
+const authenticate = require("../middlewares/authenticate");
+
 const upload = require("../middlewares/upload");
 
 const router = express.Router();
@@ -10,17 +12,41 @@ router.get("/getAllProduct", productController.getAllProduct);
 
 router.get("/:userId", productController.getProductByUserId);
 
-router.post("/", upload.single("image"), productController.createProduct);
+router.get("/oneProduct/:productId", productController.getProductById);
 
-router.patch("/:id", upload.single("image"), productController.updateProduct);
+router.post(
+  "/",
+  authenticate,
+  upload.single("image"),
+  productController.createProduct
+);
 
-router.delete("/:id", productController.deleteProduct);
+router.patch(
+  "/:id",
+  authenticate,
+  upload.single("image"),
+  productController.updateProduct
+);
+
+router.delete("/:id", authenticate, productController.deleteProduct);
 
 // * service price for tattooist only
-router.post("/:productId/servicePrice", serviceController.createServicePrice);
+router.post(
+  "/:productId/servicePrice",
+  authenticate,
+  serviceController.createServicePrice
+);
 
-router.patch("/:serviceId/servicePrice", serviceController.updateServicePrice);
+router.patch(
+  "/:serviceId/servicePrice",
+  authenticate,
+  serviceController.updateServicePrice
+);
 
-router.delete("/:serviceId/servicePrice", serviceController.deleteServicePrice);
+router.delete(
+  "/:serviceId/servicePrice",
+  authenticate,
+  serviceController.deleteServicePrice
+);
 
 module.exports = router;

@@ -90,7 +90,7 @@ module.exports = (Sequelize, DataTypes) => {
     { underScore: true }
   );
 
-  // TODO ASSOCIATE
+  // * ASSOCIATE
   User.associate = (models) => {
     // product
     User.hasMany(models.Product, {
@@ -135,6 +135,15 @@ module.exports = (Sequelize, DataTypes) => {
       onDelete: "RESTRICT",
     });
 
+    User.hasMany(models.Payment, {
+      foreignKey: {
+        name: "userId",
+        allowNull: false,
+      },
+      onUpdate: "RESTRICT",
+      onDelete: "RESTRICT",
+    });
+
     // User.hasMany(models.Booking, {
     //   as: "Tattooist",
     //   foreignKey: {
@@ -144,9 +153,6 @@ module.exports = (Sequelize, DataTypes) => {
     //   onUpdate: "RESTRICT",
     //   onDelete: "RESTRICT",
     // });
-
-    // // post
-    // // like
   };
   return User;
 };

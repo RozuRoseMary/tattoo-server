@@ -3,7 +3,18 @@ module.exports = (Sequelize, DataTypes) => {
     "Transaction",
     {
       status: {
-        type: DataTypes.ENUM("PADDING", "PAID"),
+        type: DataTypes.ENUM("PENDING", "PAID"),
+        allowNull: false,
+        defaultValue: "PENDING",
+      },
+      payment: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg: "Proof of payment is required",
+          },
+        },
       },
     },
     { underScore: true }

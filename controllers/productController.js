@@ -7,6 +7,7 @@ const { Op } = require("sequelize");
 exports.getAllProduct = async (req, res, next) => {
   try {
     const products = await Product.findAll({
+      order: [["createdAt", "DESC"]],
       include: [
         {
           model: User,
@@ -30,6 +31,7 @@ exports.getProductByUserId = async (req, res, next) => {
       where: {
         [Op.or]: [{ tattooistId: userId }, { tattooerId: userId }],
       },
+      order: [["createdAt", "DESC"]],
       include: [
         {
           model: User,
@@ -41,6 +43,30 @@ exports.getProductByUserId = async (req, res, next) => {
     });
 
     res.json({ products });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getProductById = async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await Product.findOne({
+      where: {
+        id: productId,
+      },
+      include: [
+        {
+          model: User,
+          as: "Tattooist",
+          attributes: { exclude: ["password"] },
+        },
+        { model: User, as: "Tattooer", attributes: { exclude: ["password"] } },
+      ],
+    });
+
+    res.json({ product });
   } catch (err) {
     next(err);
   }
