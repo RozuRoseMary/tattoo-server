@@ -19,11 +19,10 @@ router.patch("/updateProfile", authenticate, userController.updateProfile);
 
 // * PAYMENT
 router.patch(
-  "/updatePaymentPicture",
+  "/updatePaymentPic/:userId",
   authenticate,
-  upload.fields([{ name: "paymentPicture", max: 1 }]),
+  upload.single("paymentPicture"),
   userController.updateProfilePicture
 );
-router.patch("/updatePayment", authenticate, userController.updatePayment);
 
 module.exports = router;

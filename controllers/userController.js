@@ -3,6 +3,7 @@ const createError = require("../utils/createError");
 const { User } = require("../models");
 const cloudinary = require("../utils/cloudinary");
 
+// * GET PROFILE
 exports.getMe = async (req, res, next) => {
   try {
     const user = JSON.parse(JSON.stringify(req.user));
@@ -30,6 +31,7 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
+// * UPDATE _ DELETE PROFILE
 exports.updateProfilePicture = async (req, res, next) => {
   try {
     if (!req.files) {
@@ -110,13 +112,13 @@ exports.updateProfile = async (req, res, next) => {
     }
 
     await user.save();
-    // user
     res.json({ message: "update success", user });
   } catch (err) {
     next(err);
   }
 };
 
+// * PAYMENT
 exports.updatePaymentPic = async (req, res, next) => {
   try {
   } catch (err) {

@@ -3,7 +3,7 @@ module.exports = (Sequelize, DataTypes) => {
     "Transaction",
     {
       status: {
-        type: DataTypes.ENUM("PENDING", "PAID"),
+        type: DataTypes.ENUM("PENDING", "PAID", "CANCEL"),
         allowNull: false,
         defaultValue: "PENDING",
       },
@@ -36,6 +36,15 @@ module.exports = (Sequelize, DataTypes) => {
     Transaction.belongsTo(models.User, {
       foreignKey: {
         name: "clientId",
+        allowNull: false,
+      },
+      onUpdate: "RESTRICT",
+      onDelete: "RESTRICT",
+    });
+
+    Transaction.belongsTo(models.User, {
+      foreignKey: {
+        name: "sellerId",
         allowNull: false,
       },
       onUpdate: "RESTRICT",

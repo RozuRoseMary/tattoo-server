@@ -1,18 +1,121 @@
-const { User, Product, Transaction } = require("../models");
+const { User, Product, Transaction, Booking } = require("../models");
+const { Op } = require("sequelize");
+
 const createError = require("../utils/createError");
 const cloudinary = require("../utils/cloudinary");
 
 exports.getTransactionById = async (req, res, next) => {
   try {
-    res.json();
+    const { id } = req.params;
+
+    const transaction = await Transaction.findOne({
+      where: { id },
+      include: [
+        {
+          model: Product,
+          include: [
+            {
+              model: User,
+              as: "Tattooist",
+              attributes: { exclude: ["password"] },
+            },
+            {
+              model: User,
+              as: "Tattooer",
+              attributes: { exclude: ["password"] },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!transaction) {
+      createError("Can not found this transaction id");
+    }
+
+    res.json({ transaction });
   } catch (err) {
     next(err);
   }
 };
 
-exports.getTransactionBySellerId = async (req, res, next) => {
+exports.getMyTransactionReceived = async (req, res, next) => {
   try {
-    res.json();
+    const { userId } = req.params;
+
+    if (req.user.id !== +userId) {
+      createError("You can not view other statement.");
+    }
+
+    const transactions = await Transaction.findAll({
+      where: {
+        sellerId: userId,
+      },
+      include: [
+        {
+          model: Product,
+          include: [
+            {
+              model: User,
+              as: "Tattooist",
+              attributes: { exclude: ["password"] },
+            },
+            {
+              model: User,
+              as: "Tattooer",
+              attributes: { exclude: ["password"] },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!transactions) {
+      createError("Can not found your transaction .");
+    }
+
+    res.json({ transactions });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getMyTransactionPaid = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    if (req.user.id !== +userId) {
+      createError("You can not view other statement.");
+    }
+
+    const transactions = await Transaction.findAll({
+      where: {
+        clientId: userId,
+      },
+      include: [
+        {
+          model: Product,
+          include: [
+            {
+              model: User,
+              as: "Tattooist",
+              attributes: { exclude: ["password"] },
+            },
+            {
+              model: User,
+              as: "Tattooer",
+              attributes: { exclude: ["password"] },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!transactions) {
+      createError("Can not found your transaction .");
+    }
+
+    res.json({ transactions });
   } catch (err) {
     next(err);
   }
@@ -21,23 +124,23 @@ exports.getTransactionBySellerId = async (req, res, next) => {
 exports.createTransaction = async (req, res, next) => {
   try {
     const { productId: id } = req.params;
-    const { clientId } = req.body;
 
+    // * PRODUCT
     const product = await Product.findOne({ where: { id } });
-
     if (!product) {
       createError("Can not found this product", 400);
     }
 
-    if (product.tattooistId === +clientId || product.tattooerId === +clientId) {
-      createError("You can not buy your product", 400);
+    // *SELLER
+    let sellerId;
+    if (product.tattooerId) {
+      sellerId = product.tattooerId;
+    } else if (product.tattooistId) {
+      sellerId = product.tattooistId;
     }
 
-    if (product.status === "AVAILABLE") {
-      product.status = "PENDING";
-      await product.save();
-    } else {
-      createError("This product not available.");
+    if (req.user.id === sellerId) {
+      createError("You cannot buy your product");
     }
 
     let payment;
@@ -46,11 +149,28 @@ exports.createTransaction = async (req, res, next) => {
       payment = res.secure_url;
     }
 
+    if (!payment) {
+      createError("Payment picture is required", 400);
+    }
+
     const transaction = await Transaction.create({
       productId: product.id,
-      clientId,
+      clientId: req.user.id,
+      sellerId,
       payment,
     });
+
+    if (!transaction) {
+      createError("Can not checkout this product", 400);
+    }
+
+    // * PRODUCT AVAILABLE
+    if (product.status === "AVAILABLE") {
+      product.status = "PENDING";
+      await product.save();
+    } else {
+      createError("This product not available.");
+    }
 
     res.json({ message: "Create Transaction success", transaction });
   } catch (err) {
@@ -61,13 +181,36 @@ exports.createTransaction = async (req, res, next) => {
 // TODO
 exports.updateTransaction = async (req, res, next) => {
   try {
-    const { productId } = req.params;
+    const { id } = req.params;
     const { status } = req.body;
 
+    // * PRODUCT status SOLD_OUT
     const product = await Product.findOne({ where: { id: productId } });
 
-    const transaction = await Transaction.create();
+    // * UPDATE TRANSACTION
+    const transaction = await Transaction.findOne({ where: { id } });
+    if (!transaction) {
+      createError("Can not find this transaction", 400);
+    }
 
+    transaction.status = status;
+    if (transaction.status === "CANCEL") {
+      product.status = "AVAILABLE";
+      product.save();
+      createError("Transaction was cancel by user.", 400);
+    }
+
+    product.status = "SOLD_OUT";
+
+    // const transaction = await Transaction.create();
+
+    // * CREATE BOOKING
+    let booking;
+    if (product.tattooistId) {
+      await Booking.create({ transactionId: transaction.id });
+    }
+
+    product.save();
     res.json({ message: "Create Transaction success", product });
   } catch (err) {
     next(err);

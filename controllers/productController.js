@@ -23,6 +23,45 @@ exports.getAllProduct = async (req, res, next) => {
   }
 };
 
+exports.getAllProduct = async (req, res, next) => {
+  try {
+    const products = await Product.findAll({
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "Tattooist",
+          attributes: { exclude: ["password"] },
+        },
+        { model: User, as: "Tattooer", attributes: { exclude: ["password"] } },
+      ],
+    });
+    res.json({ products }); //return [{1,2,...}]
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAllProductAvailable = async (req, res, next) => {
+  try {
+    const products = await Product.findAll({
+      where: { status: "AVAILABLE" },
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "Tattooist",
+          attributes: { exclude: ["password"] },
+        },
+        { model: User, as: "Tattooer", attributes: { exclude: ["password"] } },
+      ],
+    });
+    res.json({ products }); //return [{1,2,...}]
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getProductByUserId = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -127,6 +166,10 @@ exports.updateProduct = async (req, res, next) => {
 
     const product = await Product.findOne({ where: { id } });
 
+    if (!product) {
+      createError("Can not find product.", 400);
+    }
+
     const isTattooist = req.user.role === "TATTOOIST";
     const isTattooer = req.user.role === "TATTOOER";
     if (!isTattooist) {
@@ -142,7 +185,13 @@ exports.updateProduct = async (req, res, next) => {
     }
 
     if (req.file) {
-      product.image = req.file;
+      const res = await cloudinary.upload(req.file.path);
+      if (product.image) {
+        const splitted = product.image.split("/");
+        const publicId = splitted[splitted.length - 1].split(".")[0];
+        await cloudinary.destroy(publicId);
+      }
+      product.image = res.secure_url;
     }
 
     if (title) {
@@ -175,8 +224,6 @@ exports.deleteProduct = async (req, res, next) => {
     if (!product) {
       createError("Product not found", 400);
     }
-
-    // await Transaction.destroy({where: {productId:id},{transaction: t}})
 
     if (product.image) {
       const splitted = product.image.split("/");

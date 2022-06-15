@@ -4,18 +4,22 @@ const transactionController = require("../controllers/transactionController");
 
 const router = express.Router();
 
-router.get("/:sellerId", transactionController.getTransactionBySellerId);
+router.get("/getOne/:id", transactionController.getTransactionById);
 
-router.get("/:transactionId", transactionController.getTransactionById);
+router.get(
+  "/meReceived/:userId",
+  transactionController.getMyTransactionReceived
+);
+router.get("/mePaid/:userId", transactionController.getMyTransactionPaid);
 
 router.post(
   "/:productId",
-  upload.single("payment"),
+  upload.single("paymentPicture"),
   transactionController.createTransaction
 );
 
-router.patch("/:productId", transactionController.updateTransaction);
+router.patch("/:id", transactionController.updateTransaction);
 
-router.delete("/:productId", transactionController.deleteTransaction);
+router.delete("/:id", transactionController.deleteTransaction);
 
 module.exports = router;
