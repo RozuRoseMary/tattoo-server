@@ -16,6 +16,9 @@ module.exports = (Sequelize, DataTypes) => {
           },
         },
       },
+      canBook: {
+        type: DataTypes.ENUM("CAN", "CANNOT"),
+      },
     },
     { underScore: true }
   );

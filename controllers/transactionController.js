@@ -124,6 +124,7 @@ exports.getMyTransactionPaid = async (req, res, next) => {
 exports.createTransaction = async (req, res, next) => {
   try {
     const { productId: id } = req.params;
+    const { canBook } = req.params;
 
     // * PRODUCT
     const product = await Product.findOne({ where: { id } });
@@ -158,6 +159,7 @@ exports.createTransaction = async (req, res, next) => {
       clientId: req.user.id,
       sellerId,
       payment,
+      canBook,
     });
 
     if (!transaction) {
@@ -201,14 +203,6 @@ exports.updateTransaction = async (req, res, next) => {
     }
 
     product.status = "SOLD_OUT";
-
-    // const transaction = await Transaction.create();
-
-    // * CREATE BOOKING
-    let booking;
-    if (product.tattooistId) {
-      await Booking.create({ transactionId: transaction.id });
-    }
 
     product.save();
     res.json({ message: "Create Transaction success", product });

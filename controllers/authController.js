@@ -42,8 +42,6 @@ exports.register = async (req, res, next) => {
       role,
     });
 
-    // console.log(user.id);
-
     const token = genToken({ id: user.id });
 
     res.status(201).json({ message: "Register Success", token });
@@ -62,11 +60,11 @@ exports.login = async (req, res, next) => {
       },
     });
     if (!user) {
-      createError("invalid credential", 400);
+      createError("Invalid credential", 400);
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      createError("invalid credential", 400);
+      createError("Invalid credential", 400);
     }
     const token = genToken({ id: user.id });
     res.json({ message: "Login success", token });

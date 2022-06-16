@@ -18,11 +18,26 @@ router.patch(
 router.patch("/updateProfile", authenticate, userController.updateProfile);
 
 // * PAYMENT
-router.patch(
-  "/updatePaymentPic/:userId",
+router.post(
+  "/payment",
   authenticate,
   upload.single("paymentPicture"),
-  userController.updateProfilePicture
+  userController.createPayment
+);
+
+router.patch(
+  "/payment",
+  authenticate,
+  upload.single("paymentPicture"),
+  userController.updatePayment
+);
+
+router.get("/getMe/payments", authenticate, userController.getAllPaymentUserId);
+
+router.get(
+  "/paymentUserSellerId/:productId",
+  authenticate,
+  userController.getAllPaymentSellerId
 );
 
 module.exports = router;

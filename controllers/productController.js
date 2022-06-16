@@ -23,25 +23,6 @@ exports.getAllProduct = async (req, res, next) => {
   }
 };
 
-exports.getAllProduct = async (req, res, next) => {
-  try {
-    const products = await Product.findAll({
-      order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: User,
-          as: "Tattooist",
-          attributes: { exclude: ["password"] },
-        },
-        { model: User, as: "Tattooer", attributes: { exclude: ["password"] } },
-      ],
-    });
-    res.json({ products }); //return [{1,2,...}]
-  } catch (err) {
-    next(err);
-  }
-};
-
 exports.getAllProductAvailable = async (req, res, next) => {
   try {
     const products = await Product.findAll({

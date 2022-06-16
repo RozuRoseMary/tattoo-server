@@ -9,6 +9,7 @@ const router = express.Router();
 
 // * product
 router.get("/getAllProduct", productController.getAllProduct);
+router.get("/getAllProductAvailable", productController.getAllProductAvailable);
 
 router.get("/:userId", productController.getProductByUserId);
 
