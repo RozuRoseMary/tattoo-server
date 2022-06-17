@@ -18,7 +18,7 @@ router.post(
   transactionController.createTransaction
 );
 
-router.patch("/:id", transactionController.updateTransaction);
+router.patch("/updateTransaction", transactionController.updateTransaction);
 
 router.delete("/:id", transactionController.deleteTransaction);
 

@@ -82,24 +82,25 @@ exports.updateProfile = async (req, res, next) => {
       newPassword,
       confirmNewPassword,
     } = req.body;
-    if (Object.keys(req.body).length === 0) {
-      createError("Can not update empty dataaaaaaa", 400);
-    }
 
-    if (
-      !firstName &&
-      !lastName &&
-      !displayName &&
-      !phoneNumber &&
-      !email &&
-      !aboutMe &&
-      !role &&
-      !password &&
-      !newPassword &&
-      !confirmNewPassword
-    ) {
+    if (Object.keys(req.body).length === 0) {
       createError("Can not update empty data", 400);
     }
+
+    // if (
+    //   !firstName &&
+    //   !lastName &&
+    //   !displayName &&
+    //   !phoneNumber &&
+    //   !email &&
+    //   !aboutMe &&
+    //   !role &&
+    //   !password &&
+    //   !newPassword &&
+    //   !confirmNewPassword
+    // ) {
+    //   createError("Can not update empty data", 400);
+    // }
 
     const user = await User.findOne({ where: { id: req.user.id } });
 
@@ -172,16 +173,6 @@ exports.createPayment = async (req, res, next) => {
     });
 
     res.json({ message: "Create payment success", payment });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.updatePayment = async (req, res, next) => {
-  try {
-    const payment = await Payment.findOne({ where: { userId: req.user.id } });
-
-    res.json({ payment });
   } catch (err) {
     next(err);
   }

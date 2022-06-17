@@ -54,18 +54,11 @@ exports.getMyTransactionReceived = async (req, res, next) => {
       include: [
         {
           model: Product,
-          include: [
-            {
-              model: User,
-              as: "Tattooist",
-              attributes: { exclude: ["password"] },
-            },
-            {
-              model: User,
-              as: "Tattooer",
-              attributes: { exclude: ["password"] },
-            },
-          ],
+        },
+        {
+          model: User,
+          as: "ClientTransaction",
+          attributes: { exclude: ["password"] },
         },
       ],
     });
@@ -183,29 +176,41 @@ exports.createTransaction = async (req, res, next) => {
 // TODO
 exports.updateTransaction = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const { status, productId, transactionId } = req.body;
 
     // * PRODUCT status SOLD_OUT
     const product = await Product.findOne({ where: { id: productId } });
 
+    if (!product) {
+      createError("Cannot find this product");
+    }
+
     // * UPDATE TRANSACTION
-    const transaction = await Transaction.findOne({ where: { id } });
+    const transaction = await Transaction.findOne({
+      where: { id: transactionId, productId: product.id },
+      include: [{ model: Product }],
+    });
+
     if (!transaction) {
       createError("Can not find this transaction", 400);
     }
 
+    if (transaction.status === status) {
+      createError("You can not update status equal to current status", 400);
+    }
+
     transaction.status = status;
+    transaction.save();
     if (transaction.status === "CANCEL") {
       product.status = "AVAILABLE";
       product.save();
       createError("Transaction was cancel by user.", 400);
+    } else if (transaction.status === "PAID") {
+      product.status = "SOLD_OUT";
+      product.save();
     }
 
-    product.status = "SOLD_OUT";
-
-    product.save();
-    res.json({ message: "Create Transaction success", product });
+    res.json({ message: "Create Transaction success", transaction });
   } catch (err) {
     next(err);
   }

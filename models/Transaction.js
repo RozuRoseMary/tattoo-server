@@ -37,6 +37,7 @@ module.exports = (Sequelize, DataTypes) => {
 
     // * transaction
     Transaction.belongsTo(models.User, {
+      as: "ClientTransaction",
       foreignKey: {
         name: "clientId",
         allowNull: false,
@@ -46,6 +47,7 @@ module.exports = (Sequelize, DataTypes) => {
     });
 
     Transaction.belongsTo(models.User, {
+      as: "SellerTransaction",
       foreignKey: {
         name: "sellerId",
         allowNull: false,

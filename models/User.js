@@ -127,7 +127,7 @@ module.exports = (Sequelize, DataTypes) => {
     User.hasMany(models.Transaction, {
       as: "SellerTransaction",
       foreignKey: {
-        name: "clientId",
+        name: "sellerId",
         allowNull: false,
       },
       onUpdate: "RESTRICT",

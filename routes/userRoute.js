@@ -25,17 +25,10 @@ router.post(
   userController.createPayment
 );
 
-router.patch(
-  "/payment",
-  authenticate,
-  upload.single("paymentPicture"),
-  userController.updatePayment
-);
-
 router.get("/getMe/payments", authenticate, userController.getAllPaymentUserId);
 
 router.get(
-  "/paymentUserSellerId/:productId",
+  "/paymentSellerId/:productId",
   authenticate,
   userController.getAllPaymentSellerId
 );
