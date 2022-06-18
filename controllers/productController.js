@@ -213,6 +213,7 @@ exports.deleteProduct = async (req, res, next) => {
     }
 
     await Product.destroy({ where: { id } }, { transaction: t });
+
     await t.commit();
     res.status(204).json();
   } catch (err) {

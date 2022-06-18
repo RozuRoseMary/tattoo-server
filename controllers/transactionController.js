@@ -196,7 +196,7 @@ exports.updateTransaction = async (req, res, next) => {
     }
 
     if (transaction.status === status) {
-      createError("You can not update status equal to current status", 400);
+      createError("New status can't equal to current status", 400);
     }
 
     transaction.status = status;
@@ -211,22 +211,6 @@ exports.updateTransaction = async (req, res, next) => {
     }
 
     res.json({ message: "Create Transaction success", transaction });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// TODO
-exports.deleteTransaction = async (req, res, next) => {
-  try {
-    const { productId } = req.params;
-    const { status } = req.body;
-
-    const product = await Product.findOne({ where: { id: productId } });
-
-    const transaction = await Transaction.create();
-
-    res.json({ message: "Create Transaction success", product });
   } catch (err) {
     next(err);
   }

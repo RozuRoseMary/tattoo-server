@@ -20,6 +20,4 @@ router.post(
 
 router.patch("/updateTransaction", transactionController.updateTransaction);
 
-router.delete("/:id", transactionController.deleteTransaction);
-
 module.exports = router;

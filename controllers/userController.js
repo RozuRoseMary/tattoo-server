@@ -42,17 +42,17 @@ exports.updateProfilePicture = async (req, res, next) => {
 
     const updateProfilePic = {};
     if (req.files.profilePicture) {
-      updateProfilePic.profilePicture = await uploadToCloudinary(
-        req.files.profilePicture[0].path,
-        req.user.profilePicture
-      );
-      // const result = await cloudinary.upload(req.files.profilePicture[0].path);
-      // if (req.user.profilePicture) {
-      //   const splitted = req.user.profilePicture.split("/");
-      //   const publicId = splitted[splitted.length - 1].split(".")[0];
-      //   await cloudinary.destroy(publicId);
-      // }
-      // updateProfilePic.profilePicture = result.secure_url;
+      // updateProfilePic.profilePicture = await uploadToCloudinary(
+      //   req.files.profilePicture[0].path,
+      //   req.user.profilePicture
+      // );
+      const result = await cloudinary.upload(req.files.profilePicture[0].path);
+      if (req.user.profilePicture) {
+        const splitted = req.user.profilePicture.split("/");
+        const publicId = splitted[splitted.length - 1].split(".")[0];
+        await cloudinary.destroy(publicId);
+      }
+      updateProfilePic.profilePicture = result.secure_url;
     }
 
     await User.update(updateProfilePic, { where: { id: req.user.id } });
@@ -178,9 +178,20 @@ exports.createPayment = async (req, res, next) => {
   }
 };
 
+exports.deletePaymentById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await Payment.destroy({ where: { id } });
+
+    res.json({ message: "Delete success" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getAllPaymentUserId = async (req, res, next) => {
   try {
-    console.log(req.user.id);
     const payments = await Payment.findAll({
       where: { userId: req.user.id },
     });

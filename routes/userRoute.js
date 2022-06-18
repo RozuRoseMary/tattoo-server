@@ -25,6 +25,8 @@ router.post(
   userController.createPayment
 );
 
+router.delete("/payment/:id", authenticate, userController.deletePaymentById);
+
 router.get("/getMe/payments", authenticate, userController.getAllPaymentUserId);
 
 router.get(
